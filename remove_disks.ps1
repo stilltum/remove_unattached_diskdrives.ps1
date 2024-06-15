@@ -14,18 +14,18 @@ $debugging = $true
 Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     $diskDrive = $_
     $deviceID = $diskDrive.InstanceId
-    $deviceType = Has-USB-Parent $deviceID
+    $USBParent = Has-USB-Parent $deviceID
 
     # Outputs all DiskDrives (including non-usb devices) currently on the system
     if ($debugging) {
         [PSCustomObject]@{
             DeviceID = $deviceID
-            USBAttached = $deviceType
+            USBAttached = $USBParent
             Present = $diskDrive.Present
         }
     # Deletes device DiskDrive USB devices that aren't currently connected
     } else {
-        if ($ParentClass -eq "USB" -and $diskDrive.Present -eq $false) {
+        if ($USBParent -and $diskDrive.Present -eq $false) {
             Write-Host "Deleting "$deviceID" Parent: "$ParentClass
             $command = "pnputil /remove-device '" + $deviceID + "'; Exit"
             Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command `"$command`"" -Verb RunAs
