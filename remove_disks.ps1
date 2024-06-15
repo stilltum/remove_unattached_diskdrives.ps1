@@ -1,4 +1,4 @@
-function Find-USB-Parent($deviceID) {
+function Has-USB-Parent($deviceID) {
     $parentDeviceId = (Get-PnpDeviceProperty -InstanceId $deviceID -KeyName DEVPKEY_Device_Parent).Data
     if ($parentDeviceId -eq $null) { return $false }
     $parentDevice = Get-PnpDevice | Where-Object { $_.InstanceId -eq $parentDeviceID }
@@ -14,7 +14,7 @@ $debugging = $true
 Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     $diskDrive = $_
     $deviceID = $diskDrive.InstanceId
-    $deviceType = Find-USB-Parent $deviceID
+    $deviceType = Has-USB-Parent $deviceID
 
     # Outputs all DiskDrives (including non-usb devices) currently on the system
     if ($debugging) {
