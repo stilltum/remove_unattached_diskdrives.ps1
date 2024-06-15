@@ -5,7 +5,7 @@ function Has-USB-Parent($deviceID) {
     if ($parentDevice.Class -eq "USB") {
         return $true
     } else {
-        return Find-USB-Parent($parentDeviceId)
+        return Has-USB-Parent($parentDeviceId)
     }
 }
 
