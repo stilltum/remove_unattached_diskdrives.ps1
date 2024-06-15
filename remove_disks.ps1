@@ -1,13 +1,20 @@
+function Find-USB-Parent($deviceID) {
+    $parentDeviceId = (Get-PnpDeviceProperty -InstanceId $deviceID -KeyName DEVPKEY_Device_Parent).Data
+    if ($parentDeviceId -eq $null) { return $false }
+    $parentDevice = Get-PnpDevice | Where-Object { $_.InstanceId -eq $parentDeviceID }
+    if ($parentDevice.Class -eq "USB") {
+        return $true
+    } else {
+        return Find-USB-Parent($parentDeviceId)
+    }
+}
+
 # Filter and output disk drives connected via USB and internally
 Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     $diskDrive = $_
     $deviceID = $diskDrive.InstanceId
 
-    $parentDeviceID = (Get-PnpDeviceProperty -InstanceId $deviceID -KeyName DEVPKEY_Device_Parent).Data
-    if ($parentDeviceID) {
-        $parentDevice = Get-PnpDevice | Where-Object { $_.InstanceId -eq $parentDeviceID }
-        $ParentClass = $parentDevice.Class
-    }
+    $deviceType = Find-USB-Parent $deviceID
 
     # True deletes device DiskDrive USB devices that aren't currently connected
     if ($false) {
@@ -22,8 +29,7 @@ Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     } else {
         [PSCustomObject]@{
             DeviceID = $deviceID
-            Description = $diskDrive.Description
-            ParentClass = $ParentClass
+            USBAttached = $deviceType
             Present = $diskDrive.Present
         }
     }
