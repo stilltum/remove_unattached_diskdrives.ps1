@@ -1,4 +1,4 @@
-$debugging = $true
+$debugging = $false
 # Filter and output disk drives connected via USB and internally
 Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     $diskDrive = $_
@@ -22,8 +22,8 @@ Get-PnpDevice | Where-Object { $_.Class -eq "DiskDrive" } | ForEach-Object {
     } else {
         if ($ParentClass -eq "USB" -and $diskDrive.Present -eq $false) {
             Write-Host "Deleting "$deviceID" Parent: "$ParentClass
-            $command = "pnputil /remove-device '" + $deviceID + "'; Exit"
-            Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command `"$command`"" -Verb RunAs
+            $command = "pnputil /remove-device '" + $deviceID + "'"
+            Start-Process -FilePath "powershell.exe" -ArgumentList "-Command `"$command`"" -Verb RunAs
         } else {
             Write-Host "Keeping "$deviceID" Parent: "$ParentClass
         }
